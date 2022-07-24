@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+    mongodb:
+        image: mongo:latest
+        container_name: mongodb
+        restart: always
+        env_file: .env
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: test_user
+            MONGO_INITDB_ROOT_PASSWORD: test_password
+            MONGO_INITDB_DATABASE: test_db
+        ports:
+            - 27017:27017
+        volumes:
+            - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    tg-bot:
+      build: ./
+      entrypoint: ["python3", "tg_bot.py"]
+      container_name: "tg_bot"
+      env_file: .env
+      restart: always
+      ports:
+        - "0.0.0.0:${TG_BOT_PORT}:${TG_BOT_PORT}"
+      depends_on:
+        - mongodb
